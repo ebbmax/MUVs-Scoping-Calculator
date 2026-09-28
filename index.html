@@ -1392,21 +1392,31 @@
             const contractLength = parseInt(document.getElementById('contractLength').value) || 1;
             const showGrowth = contractLength > 1;
 
+            const contractTotal = (baseMonthly, growthPct) => {
+                const g = growthPct / 100;
+                let total = 0;
+                for (let k = 0; k < contractLength; k++) {
+                    total += baseMonthly * 12 * Math.pow(1 + g, k);
+                }
+                return Math.round(total);
+            };
+
             if (channels.includes('web')) {
                 const domains = document.getElementById('numDomains').value || 1;
                 const totalWebMUVs = getTotalWebMUVs();
+                const webGrowth = showGrowth ? (parseFloat(document.getElementById('webGrowthRate')?.value) || 0) : 0;
+                const webContractTotal = contractTotal(totalWebMUVs, webGrowth);
                 summaryHTML += `
                     <div class="slds-summary-tile">
                         <div class="slds-summary-tile__label">Web Domains</div>
                         <div class="slds-summary-tile__value">${domains}</div>
                     </div>
                     <div class="slds-summary-tile">
-                        <div class="slds-summary-tile__label">Total Monthly Web Visitors</div>
-                        <div class="slds-summary-tile__value">${totalWebMUVs.toLocaleString()}</div>
+                        <div class="slds-summary-tile__label">Total Web Visitors (Contract)</div>
+                        <div class="slds-summary-tile__value">${webContractTotal.toLocaleString()}</div>
                     </div>
                 `;
                 if (showGrowth) {
-                    const webGrowth = parseFloat(document.getElementById('webGrowthRate')?.value) || 0;
                     summaryHTML += `
                         <div class="slds-summary-tile">
                             <div class="slds-summary-tile__label">Web YoY Growth</div>
@@ -1419,18 +1429,19 @@
             if (channels.includes('mobile')) {
                 const numApps = document.getElementById('numMobileApps').value || 1;
                 const totalMAU = getTotalMobileMAUs();
+                const mobileGrowth = showGrowth ? (parseFloat(document.getElementById('mobileGrowthRate')?.value) || 0) : 0;
+                const mobileContractTotal = contractTotal(totalMAU, mobileGrowth);
                 summaryHTML += `
                     <div class="slds-summary-tile">
                         <div class="slds-summary-tile__label">Mobile Apps</div>
                         <div class="slds-summary-tile__value">${numApps}</div>
                     </div>
                     <div class="slds-summary-tile">
-                        <div class="slds-summary-tile__label">Total Mobile MAU</div>
-                        <div class="slds-summary-tile__value">${totalMAU.toLocaleString()}</div>
+                        <div class="slds-summary-tile__label">Total Mobile Active Users (Contract)</div>
+                        <div class="slds-summary-tile__value">${mobileContractTotal.toLocaleString()}</div>
                     </div>
                 `;
                 if (showGrowth) {
-                    const mobileGrowth = parseFloat(document.getElementById('mobileGrowthRate')?.value) || 0;
                     summaryHTML += `
                         <div class="slds-summary-tile">
                             <div class="slds-summary-tile__label">Mobile YoY Growth</div>
