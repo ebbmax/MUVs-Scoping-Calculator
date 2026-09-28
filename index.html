@@ -1008,7 +1008,7 @@
                         <h4 class="slds-volume-section__title">
                             <span class="slds-icon-text">🌐</span> Web Personalization
                         </h4>
-                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">To help estimate the number of Monthly Unique Visitors required, we need to understand the number of websites where real-time data capture and personalization will occur. For each website, we will need to understand the average monthly unique visitor count for the last 12 months. The 12 month period ensures that we are factoring in any seasonal spikes in traffic patterns. From there, we use the following formula: <strong>MUV Quantity Needed = ( Avg. Monthly Unique Visitors * 12 months * Contract Length) / 100000</strong>.</p>
+                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">To help estimate the number of Monthly Unique Visitors required, we need to understand the number of websites where real-time data capture and personalization will occur. For each website, we will need to understand the average monthly unique visitor count for the last 12 months. The 12 month period ensures that we are factoring in any seasonal spikes in traffic patterns. From there, we use the following formula: <strong>MUV Quantity Needed = ( Avg. Monthly Unique Visitors * 12 months * Contract Length) / 100000</strong>. If a Year-over-Year Growth Rate is provided below, each year's monthly volume is grown by that rate compounding from year 1.</p>
 
                         <div class="slds-form-element" style="margin-bottom: 1.5rem;">
                             <label class="slds-form-element__label" for="numDomains">Number of Unique Website Domains</label>
@@ -1018,6 +1018,12 @@
                         <div id="domainInputsContainer">
                             <!-- Dynamic domain inputs will be added here -->
                         </div>
+
+                        <div id="webGrowthContainer" class="slds-form-element slds-hidden" style="margin-top: 1rem; margin-bottom: 0;">
+                            <label class="slds-form-element__label" for="webGrowthRate">Year-over-Year Growth Rate (%)</label>
+                            <input type="number" class="slds-input" id="webGrowthRate" value="0" min="0" step="0.1" placeholder="0">
+                            <p class="slds-advanced-settings__hint">Default is 0% (flat). Applied to each site's Year 1 average to project subsequent years.</p>
+                        </div>
                     </div>
 
                     <!-- Mobile Volume Section -->
@@ -1025,7 +1031,7 @@
                         <h4 class="slds-volume-section__title">
                             <span class="slds-icon-text">📱</span> Mobile App Personalization
                         </h4>
-                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">Similar to the above, in order to estimate the number of MUVs required to cover mobile consumption, we need to understand the number of mobile apps where real-time data capture and personalization will occur. For each app, we will need to understand the average monthly active user count across the last 12 months. From there, we use the following formula <strong>MUV Quantity Needed = (Avg. Monthly Active Users * 12 months * Contract Length) / 100000</strong>.</p>
+                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">Similar to the above, in order to estimate the number of MUVs required to cover mobile consumption, we need to understand the number of mobile apps where real-time data capture and personalization will occur. For each app, we will need to understand the average monthly active user count across the last 12 months. From there, we use the following formula <strong>MUV Quantity Needed = (Avg. Monthly Active Users * 12 months * Contract Length) / 100000</strong>. If a Year-over-Year Growth Rate is provided below, each year's monthly volume is grown by that rate compounding from year 1.</p>
 
                         <div class="slds-form-element" style="margin-bottom: 1.5rem;">
                             <label class="slds-form-element__label" for="numMobileApps">Number of Mobile Apps</label>
@@ -1034,6 +1040,12 @@
 
                         <div id="mobileAppInputsContainer">
                             <!-- Dynamic mobile app inputs will be added here -->
+                        </div>
+
+                        <div id="mobileGrowthContainer" class="slds-form-element slds-hidden" style="margin-top: 1rem; margin-bottom: 0;">
+                            <label class="slds-form-element__label" for="mobileGrowthRate">Year-over-Year Growth Rate (%)</label>
+                            <input type="number" class="slds-input" id="mobileGrowthRate" value="0" min="0" step="0.1" placeholder="0">
+                            <p class="slds-advanced-settings__hint">Default is 0% (flat). Applied to each app's Year 1 average to project subsequent years.</p>
                         </div>
                     </div>
 
@@ -1290,6 +1302,8 @@
 
         function updateVolumeFields() {
             const channels = getSelectedChannels();
+            const contractLength = parseInt(document.getElementById('contractLength').value) || 1;
+            const showGrowth = contractLength > 1;
 
             const hasVolumeChannels = channels.includes('web') || channels.includes('mobile');
             document.getElementById('noChannelsMessage').classList.toggle('slds-hidden', hasVolumeChannels);
@@ -1300,6 +1314,7 @@
             if (showWeb) {
                 updateDomainInputs();
             }
+            document.getElementById('webGrowthContainer').classList.toggle('slds-hidden', !(showWeb && showGrowth));
 
             // Mobile section
             const showMobile = channels.includes('mobile');
@@ -1307,6 +1322,7 @@
             if (showMobile) {
                 updateMobileAppInputs();
             }
+            document.getElementById('mobileGrowthContainer').classList.toggle('slds-hidden', !(showMobile && showGrowth));
         }
 
         function validateVolumes() {
@@ -1373,6 +1389,9 @@
                 </div>
             `;
 
+            const contractLength = parseInt(document.getElementById('contractLength').value) || 1;
+            const showGrowth = contractLength > 1;
+
             if (channels.includes('web')) {
                 const domains = document.getElementById('numDomains').value || 1;
                 const totalWebMUVs = getTotalWebMUVs();
@@ -1386,6 +1405,15 @@
                         <div class="slds-summary-tile__value">${totalWebMUVs.toLocaleString()}</div>
                     </div>
                 `;
+                if (showGrowth) {
+                    const webGrowth = parseFloat(document.getElementById('webGrowthRate')?.value) || 0;
+                    summaryHTML += `
+                        <div class="slds-summary-tile">
+                            <div class="slds-summary-tile__label">Web YoY Growth</div>
+                            <div class="slds-summary-tile__value">${webGrowth}%</div>
+                        </div>
+                    `;
+                }
             }
 
             if (channels.includes('mobile')) {
@@ -1401,6 +1429,15 @@
                         <div class="slds-summary-tile__value">${totalMAU.toLocaleString()}</div>
                     </div>
                 `;
+                if (showGrowth) {
+                    const mobileGrowth = parseFloat(document.getElementById('mobileGrowthRate')?.value) || 0;
+                    summaryHTML += `
+                        <div class="slds-summary-tile">
+                            <div class="slds-summary-tile__label">Mobile YoY Growth</div>
+                            <div class="slds-summary-tile__value">${mobileGrowth}%</div>
+                        </div>
+                    `;
+                }
             }
 
             document.getElementById('summaryGrid').innerHTML = summaryHTML;
@@ -1413,11 +1450,29 @@
             const totalWebMUVs = getTotalWebMUVs();
             const totalMobileMAUs = getTotalMobileMAUs();
 
-            // MUV unit calc per channel: (Avg Monthly * 12 * Contract Length) / 100,000
-            const webUnits = (channels.includes('web') && totalWebMUVs > 0)
-                ? Math.ceil((totalWebMUVs * 12 * contractLength) / 100000) : 0;
-            const mobileUnits = (channels.includes('mobile') && totalMobileMAUs > 0)
-                ? Math.ceil((totalMobileMAUs * 12 * contractLength) / 100000) : 0;
+            // Growth rates default to 0% (flat). Only applied when contract > 1.
+            const webGrowthPct = parseFloat(document.getElementById('webGrowthRate')?.value) || 0;
+            const mobileGrowthPct = parseFloat(document.getElementById('mobileGrowthRate')?.value) || 0;
+            const useGrowth = contractLength > 1;
+
+            // Sum over N years of (Y1 monthly * 12 * (1+g)^k), k = 0..N-1
+            // Reduces to Y1 * 12 * N when g = 0.
+            const yearlySum = (baseMonthly, growthPct) => {
+                const g = growthPct / 100;
+                let total = 0;
+                for (let k = 0; k < contractLength; k++) {
+                    total += baseMonthly * 12 * Math.pow(1 + g, k);
+                }
+                return total;
+            };
+
+            const webRawMUVs = (channels.includes('web') && totalWebMUVs > 0)
+                ? yearlySum(totalWebMUVs, useGrowth ? webGrowthPct : 0) : 0;
+            const mobileRawMUVs = (channels.includes('mobile') && totalMobileMAUs > 0)
+                ? yearlySum(totalMobileMAUs, useGrowth ? mobileGrowthPct : 0) : 0;
+
+            const webUnits = webRawMUVs > 0 ? Math.ceil(webRawMUVs / 100000) : 0;
+            const mobileUnits = mobileRawMUVs > 0 ? Math.ceil(mobileRawMUVs / 100000) : 0;
 
             const totalUnits = webUnits + mobileUnits;
 
@@ -1623,7 +1678,9 @@
                 numDomains,
                 domains,
                 numMobileApps: numApps,
-                mobileApps
+                mobileApps,
+                webGrowthRate:    document.getElementById('webGrowthRate')?.value || '0',
+                mobileGrowthRate: document.getElementById('mobileGrowthRate')?.value || '0'
             };
 
             const json     = JSON.stringify(config, null, 2);
@@ -1713,6 +1770,9 @@
                 if (m) m.value = a.mau  || '';
             });
 
+            document.getElementById('webGrowthRate').value    = c.webGrowthRate    ?? '0';
+            document.getElementById('mobileGrowthRate').value = c.mobileGrowthRate ?? '0';
+
             window._loadedConfig = null;
         }
 
@@ -1733,6 +1793,8 @@
             document.getElementById('domainInputsContainer').innerHTML = '';
             document.getElementById('numMobileApps').value = '1';
             document.getElementById('mobileAppInputsContainer').innerHTML = '';
+            document.getElementById('webGrowthRate').value = '0';
+            document.getElementById('mobileGrowthRate').value = '0';
 
             for (let i = 1; i <= 4; i++) {
                 document.getElementById(`stepCircle${i}`).classList.remove('slds-is-active', 'slds-is-completed');
