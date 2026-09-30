@@ -1047,6 +1047,27 @@
                             <input type="number" class="slds-input" id="mobileGrowthRate" value="0" min="0" step="0.1" placeholder="0">
                             <p class="slds-advanced-settings__hint">Default is 0% (flat). Applied to each app's Year 1 average to project subsequent years.</p>
                         </div>
+
+                        <details id="mobileAdvancedOptions" class="slds-advanced-settings slds-hidden" style="margin-top: 1rem;">
+                            <summary>Advanced Options</summary>
+                            <div class="slds-advanced-settings__body">
+                                <p class="slds-text-color_weak" style="margin-top: 0.75rem; margin-bottom: 0.75rem; font-size: 0.8125rem;">For implementations that leverage identity resolution logic and a single data space/real-time profile data graph, we can account for overlap between web and mobile visitors to get a more accurate estimation for the number of MUVs required. After indicating this is the desired implementation approach below, you can enter a percent overlap that will be factored in to the final calculation. Keep in mind that MUVs are not deduped across data spaces or across multiple real-time data graphs.</p>
+
+                                <label class="slds-checkbox-tile" onclick="toggleSharedProfile(this)">
+                                    <input type="checkbox" id="sharedProfileGraph">
+                                    <div class="slds-checkbox-tile__content" style="align-items: flex-start;">
+                                        <span class="slds-checkbox-tile__indicator" style="margin-top: 2px;"></span>
+                                        <span class="slds-checkbox-tile__label">Single Data Space/RT DG Implementation</span>
+                                    </div>
+                                </label>
+
+                                <div id="overlapContainer" class="slds-form-element slds-hidden" style="margin-top: 0.75rem; margin-bottom: 0;">
+                                    <label class="slds-form-element__label" for="mobileWebOverlap">% Overlap of Mobile App and Web Visitors</label>
+                                    <input type="number" class="slds-input" id="mobileWebOverlap" value="0" min="0" max="100" step="1" placeholder="e.g., 50">
+                                    <p class="slds-advanced-settings__hint">Reduces the mobile contribution to the combined MUV total by this percentage.</p>
+                                </div>
+                            </div>
+                        </details>
                     </div>
 
                 </div>
@@ -1148,6 +1169,14 @@
             const checkbox = item.querySelector('input[type="checkbox"]');
             checkbox.checked = !checkbox.checked;
             item.classList.toggle('slds-is-selected', checkbox.checked);
+        }
+
+        // Toggle shared-profile-graph checkbox and reveal the overlap % input
+        function toggleSharedProfile(item) {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            item.classList.toggle('slds-is-selected', checkbox.checked);
+            document.getElementById('overlapContainer').classList.toggle('slds-hidden', !checkbox.checked);
         }
 
         // Dynamic domain inputs — preserves existing values when re-rendering
@@ -1323,6 +1352,19 @@
                 updateMobileAppInputs();
             }
             document.getElementById('mobileGrowthContainer').classList.toggle('slds-hidden', !(showMobile && showGrowth));
+
+            // Advanced Options — only when BOTH web and mobile are selected
+            const showAdvanced = showWeb && showMobile;
+            const advanced = document.getElementById('mobileAdvancedOptions');
+            advanced.classList.toggle('slds-hidden', !showAdvanced);
+            if (!showAdvanced) {
+                // Collapse and reset shared-profile state when hidden
+                advanced.open = false;
+                const shared = document.getElementById('sharedProfileGraph');
+                shared.checked = false;
+                shared.closest('.slds-checkbox-tile').classList.remove('slds-is-selected');
+                document.getElementById('overlapContainer').classList.add('slds-hidden');
+            }
         }
 
         function validateVolumes() {
@@ -1451,6 +1493,17 @@
                 }
             }
 
+            const bothChannels = channels.includes('web') && channels.includes('mobile');
+            if (bothChannels && document.getElementById('sharedProfileGraph')?.checked) {
+                const overlap = parseFloat(document.getElementById('mobileWebOverlap')?.value) || 0;
+                summaryHTML += `
+                    <div class="slds-summary-tile">
+                        <div class="slds-summary-tile__label">Mobile / Web Visitor Overlap</div>
+                        <div class="slds-summary-tile__value">${overlap}%</div>
+                    </div>
+                `;
+            }
+
             document.getElementById('summaryGrid').innerHTML = summaryHTML;
         }
 
@@ -1482,10 +1535,22 @@
             const mobileRawMUVs = (channels.includes('mobile') && totalMobileMAUs > 0)
                 ? yearlySum(totalMobileMAUs, useGrowth ? mobileGrowthPct : 0) : 0;
 
-            const webUnits = webRawMUVs > 0 ? Math.ceil(webRawMUVs / 100000) : 0;
-            const mobileUnits = mobileRawMUVs > 0 ? Math.ceil(mobileRawMUVs / 100000) : 0;
+            // Shared data space / RT profile graph — dedupe mobile against web by overlap %
+            const bothChannels = channels.includes('web') && channels.includes('mobile');
+            const sharedProfile = bothChannels && document.getElementById('sharedProfileGraph')?.checked;
+            const overlapPct = sharedProfile
+                ? Math.min(100, Math.max(0, parseFloat(document.getElementById('mobileWebOverlap')?.value) || 0))
+                : 0;
 
-            const totalUnits = webUnits + mobileUnits;
+            let totalUnits;
+            if (sharedProfile) {
+                const combined = webRawMUVs + (1 - overlapPct / 100) * mobileRawMUVs;
+                totalUnits = combined > 0 ? Math.ceil(combined / 100000) : 0;
+            } else {
+                const webUnits = webRawMUVs > 0 ? Math.ceil(webRawMUVs / 100000) : 0;
+                const mobileUnits = mobileRawMUVs > 0 ? Math.ceil(mobileRawMUVs / 100000) : 0;
+                totalUnits = webUnits + mobileUnits;
+            }
 
             const skus = [{
                 name: 'Real-Time Personalization - MUVs (100K)',
@@ -1690,8 +1755,10 @@
                 domains,
                 numMobileApps: numApps,
                 mobileApps,
-                webGrowthRate:    document.getElementById('webGrowthRate')?.value || '0',
-                mobileGrowthRate: document.getElementById('mobileGrowthRate')?.value || '0'
+                webGrowthRate:      document.getElementById('webGrowthRate')?.value || '0',
+                mobileGrowthRate:   document.getElementById('mobileGrowthRate')?.value || '0',
+                sharedProfileGraph: !!document.getElementById('sharedProfileGraph')?.checked,
+                mobileWebOverlap:   document.getElementById('mobileWebOverlap')?.value || '0'
             };
 
             const json     = JSON.stringify(config, null, 2);
@@ -1784,6 +1851,15 @@
             document.getElementById('webGrowthRate').value    = c.webGrowthRate    ?? '0';
             document.getElementById('mobileGrowthRate').value = c.mobileGrowthRate ?? '0';
 
+            const sharedEl = document.getElementById('sharedProfileGraph');
+            sharedEl.checked = !!c.sharedProfileGraph;
+            sharedEl.closest('.slds-checkbox-tile').classList.toggle('slds-is-selected', sharedEl.checked);
+            document.getElementById('overlapContainer').classList.toggle('slds-hidden', !sharedEl.checked);
+            document.getElementById('mobileWebOverlap').value = c.mobileWebOverlap ?? '0';
+            if (sharedEl.checked) {
+                document.getElementById('mobileAdvancedOptions').open = true;
+            }
+
             window._loadedConfig = null;
         }
 
@@ -1806,6 +1882,12 @@
             document.getElementById('mobileAppInputsContainer').innerHTML = '';
             document.getElementById('webGrowthRate').value = '0';
             document.getElementById('mobileGrowthRate').value = '0';
+            const sharedReset = document.getElementById('sharedProfileGraph');
+            sharedReset.checked = false;
+            sharedReset.closest('.slds-checkbox-tile').classList.remove('slds-is-selected');
+            document.getElementById('overlapContainer').classList.add('slds-hidden');
+            document.getElementById('mobileWebOverlap').value = '0';
+            document.getElementById('mobileAdvancedOptions').open = false;
 
             for (let i = 1; i <= 4; i++) {
                 document.getElementById(`stepCircle${i}`).classList.remove('slds-is-active', 'slds-is-completed');
