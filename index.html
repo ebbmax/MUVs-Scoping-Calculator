@@ -994,83 +994,35 @@
 
         <!-- Step 3: Channel Volumes -->
         <div class="slds-step-content" id="step3">
+            <!-- Data Spaces Config Card -->
             <div class="slds-card">
                 <div class="slds-card__header">
-                    <h2 class="slds-card__header-title">Channel Volumes</h2>
+                    <h2 class="slds-card__header-title">Data Spaces</h2>
                 </div>
                 <div class="slds-card__body">
-                    <div id="noChannelsMessage" class="slds-empty-state slds-hidden">
+                    <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">The number of data spaces configured can impact a customer's MUV consumption, as MUVs are not deduped across data spaces. In order to get the most accurate estimate, enter the number of intended data spaces below. If you are unsure how many data spaces are required, just use the default value of 1.</p>
+
+                    <div class="slds-form-element" style="margin-bottom: 0;">
+                        <label class="slds-form-element__label" for="numDataSpaces">Number of Data Spaces</label>
+                        <input type="number" class="slds-input" id="numDataSpaces" value="1" min="1" onchange="updateDataSpaces()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state (shown when no channels selected) -->
+            <div id="noChannelsMessage" class="slds-card slds-hidden">
+                <div class="slds-card__body">
+                    <div class="slds-empty-state">
                         <p>Please go back and select at least one channel to configure volumes.</p>
                     </div>
-
-                    <!-- Web Volume Section -->
-                    <div id="webVolumeSection" class="slds-volume-section slds-hidden">
-                        <h4 class="slds-volume-section__title">
-                            <span class="slds-icon-text">🌐</span> Web Personalization
-                        </h4>
-                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">To help estimate the number of Monthly Unique Visitors required, we need to understand the number of websites where real-time data capture and personalization will occur. For each website, we will need to understand the average monthly unique visitor count for the last 12 months. The 12 month period ensures that we are factoring in any seasonal spikes in traffic patterns. From there, we use the following formula: <strong>MUV Quantity Needed = ( Avg. Monthly Unique Visitors * 12 months * Contract Length) / 100000</strong>. If a Year-over-Year Growth Rate is provided below, each year's monthly volume is grown by that rate compounding from year 1.</p>
-
-                        <div class="slds-form-element" style="margin-bottom: 1.5rem;">
-                            <label class="slds-form-element__label" for="numDomains">Number of Unique Website Domains</label>
-                            <input type="number" class="slds-input" id="numDomains" value="1" min="1" onchange="updateDomainInputs()">
-                        </div>
-
-                        <div id="domainInputsContainer">
-                            <!-- Dynamic domain inputs will be added here -->
-                        </div>
-
-                        <div id="webGrowthContainer" class="slds-form-element slds-hidden" style="margin-top: 1rem; margin-bottom: 0;">
-                            <label class="slds-form-element__label" for="webGrowthRate">Year-over-Year Growth Rate (%)</label>
-                            <input type="number" class="slds-input" id="webGrowthRate" value="0" min="0" step="0.1" placeholder="0">
-                            <p class="slds-advanced-settings__hint">Default is 0% (flat). Applied to each site's Year 1 average to project subsequent years.</p>
-                        </div>
-                    </div>
-
-                    <!-- Mobile Volume Section -->
-                    <div id="mobileVolumeSection" class="slds-volume-section slds-hidden">
-                        <h4 class="slds-volume-section__title">
-                            <span class="slds-icon-text">📱</span> Mobile App Personalization
-                        </h4>
-                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">Similar to the above, in order to estimate the number of MUVs required to cover mobile consumption, we need to understand the number of mobile apps where real-time data capture and personalization will occur. For each app, we will need to understand the average monthly active user count across the last 12 months. From there, we use the following formula <strong>MUV Quantity Needed = (Avg. Monthly Active Users * 12 months * Contract Length) / 100000</strong>. If a Year-over-Year Growth Rate is provided below, each year's monthly volume is grown by that rate compounding from year 1.</p>
-
-                        <div class="slds-form-element" style="margin-bottom: 1.5rem;">
-                            <label class="slds-form-element__label" for="numMobileApps">Number of Mobile Apps</label>
-                            <input type="number" class="slds-input" id="numMobileApps" value="1" min="1" onchange="updateMobileAppInputs()">
-                        </div>
-
-                        <div id="mobileAppInputsContainer">
-                            <!-- Dynamic mobile app inputs will be added here -->
-                        </div>
-
-                        <div id="mobileGrowthContainer" class="slds-form-element slds-hidden" style="margin-top: 1rem; margin-bottom: 0;">
-                            <label class="slds-form-element__label" for="mobileGrowthRate">Year-over-Year Growth Rate (%)</label>
-                            <input type="number" class="slds-input" id="mobileGrowthRate" value="0" min="0" step="0.1" placeholder="0">
-                            <p class="slds-advanced-settings__hint">Default is 0% (flat). Applied to each app's Year 1 average to project subsequent years.</p>
-                        </div>
-
-                        <details id="mobileAdvancedOptions" class="slds-advanced-settings slds-hidden" style="margin-top: 1rem;">
-                            <summary>Advanced Options</summary>
-                            <div class="slds-advanced-settings__body">
-                                <p class="slds-text-color_weak" style="margin-top: 0.75rem; margin-bottom: 0.75rem; font-size: 0.8125rem;">For implementations that leverage identity resolution logic and a single data space/real-time profile data graph, we can account for overlap between web and mobile visitors to get a more accurate estimation for the number of MUVs required. By selecting the check-box below, you can enter a percent overlap that will be factored into the final calculation. Keep in mind that MUVs are not deduped across data spaces or across multiple real-time data graphs.</p>
-
-                                <label class="slds-checkbox-tile" onclick="toggleSharedProfile(this)">
-                                    <input type="checkbox" id="sharedProfileGraph">
-                                    <div class="slds-checkbox-tile__content" style="align-items: flex-start;">
-                                        <span class="slds-checkbox-tile__indicator" style="margin-top: 2px;"></span>
-                                        <span class="slds-checkbox-tile__label">Single Data Space/Real-time Data Graph Implementation</span>
-                                    </div>
-                                </label>
-
-                                <div id="overlapContainer" class="slds-form-element slds-hidden" style="margin-top: 0.75rem; margin-bottom: 0;">
-                                    <label class="slds-form-element__label" for="mobileWebOverlap">% Overlap of Mobile App and Web Visitors</label>
-                                    <input type="number" class="slds-input" id="mobileWebOverlap" value="0" min="0" max="100" step="1" placeholder="e.g., 50">
-                                    <p class="slds-advanced-settings__hint">Reduces the mobile contribution to the combined MUV total by this percentage.</p>
-                                </div>
-                            </div>
-                        </details>
-                    </div>
-
                 </div>
+            </div>
+
+            <!-- Container for per-Data-Space channel volume cards (populated by JS) -->
+            <div id="dataSpacesContainer"></div>
+
+            <!-- Actions Card -->
+            <div class="slds-card">
                 <div class="slds-card__footer">
                     <button class="slds-button slds-button_neutral" onclick="prevStep(3)">Back</button>
                     <button class="slds-button slds-button_brand" onclick="generateSKUs()">Generate Recommended SKUs</button>
@@ -1171,20 +1123,110 @@
             item.classList.toggle('slds-is-selected', checkbox.checked);
         }
 
-        // Toggle shared-profile-graph checkbox and reveal the overlap % input
-        function toggleSharedProfile(item) {
-            const checkbox = item.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked;
-            item.classList.toggle('slds-is-selected', checkbox.checked);
-            document.getElementById('overlapContainer').classList.toggle('slds-hidden', !checkbox.checked);
+// Dynamic domain inputs — preserves existing values when re-rendering
+        function getNumDataSpaces() {
+            return Math.max(1, parseInt(document.getElementById('numDataSpaces')?.value) || 1);
         }
 
-        // Dynamic domain inputs — preserves existing values when re-rendering
-        function updateDomainInputs() {
-            const numDomains = parseInt(document.getElementById('numDomains').value) || 1;
-            const container = document.getElementById('domainInputsContainer');
+        // Build the entire channel-volumes card markup for a single data space
+        function renderDataSpaceCard(ds) {
+            return `
+            <div class="slds-card">
+                <div class="slds-card__header">
+                    <h2 class="slds-card__header-title">Channel Volumes - Data Space ${ds}</h2>
+                </div>
+                <div class="slds-card__body">
+                    <div id="webVolumeSection-${ds}" class="slds-volume-section slds-hidden">
+                        <h4 class="slds-volume-section__title">
+                            <span class="slds-icon-text">🌐</span> Web Personalization
+                        </h4>
+                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">To help estimate the number of Monthly Unique Visitors required, we need to understand the number of websites where real-time data capture and personalization will occur. For each website, we will need to understand the average monthly unique visitor count for the last 12 months. The 12 month period ensures that we are factoring in any seasonal spikes in traffic patterns. From there, we use the following formula: <strong>MUV Quantity Needed = ( Avg. Monthly Unique Visitors * 12 months * Contract Length) / 100000</strong>. If a Year-over-Year Growth Rate is provided below, each year's monthly volume is grown by that rate compounding from year 1.</p>
 
-            // Snapshot existing values before wiping DOM
+                        <div class="slds-form-element" style="margin-bottom: 1.5rem;">
+                            <label class="slds-form-element__label" for="numDomains-${ds}">Number of Unique Website Domains</label>
+                            <input type="number" class="slds-input" id="numDomains-${ds}" value="1" min="1" onchange="updateDomainInputs(${ds})">
+                        </div>
+
+                        <div id="domainInputsContainer-${ds}"></div>
+
+                        <div id="webGrowthContainer-${ds}" class="slds-form-element slds-hidden" style="margin-top: 1rem; margin-bottom: 0;">
+                            <label class="slds-form-element__label" for="webGrowthRate-${ds}">Year-over-Year Growth Rate (%)</label>
+                            <input type="number" class="slds-input" id="webGrowthRate-${ds}" value="0" min="0" step="0.1" placeholder="0">
+                            <p class="slds-advanced-settings__hint">Default is 0% (flat). Applied to each site's Year 1 average to project subsequent years.</p>
+                        </div>
+                    </div>
+
+                    <div id="mobileVolumeSection-${ds}" class="slds-volume-section slds-hidden">
+                        <h4 class="slds-volume-section__title">
+                            <span class="slds-icon-text">📱</span> Mobile App Personalization
+                        </h4>
+                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">Similar to the above, in order to estimate the number of MUVs required to cover mobile consumption, we need to understand the number of mobile apps where real-time data capture and personalization will occur. For each app, we will need to understand the average monthly active user count across the last 12 months. From there, we use the following formula <strong>MUV Quantity Needed = (Avg. Monthly Active Users * 12 months * Contract Length) / 100000</strong>. If a Year-over-Year Growth Rate is provided below, each year's monthly volume is grown by that rate compounding from year 1.</p>
+
+                        <div class="slds-form-element" style="margin-bottom: 1.5rem;">
+                            <label class="slds-form-element__label" for="numMobileApps-${ds}">Number of Mobile Apps</label>
+                            <input type="number" class="slds-input" id="numMobileApps-${ds}" value="1" min="1" onchange="updateMobileAppInputs(${ds})">
+                        </div>
+
+                        <div id="mobileAppInputsContainer-${ds}"></div>
+
+                        <div id="mobileGrowthContainer-${ds}" class="slds-form-element slds-hidden" style="margin-top: 1rem; margin-bottom: 0;">
+                            <label class="slds-form-element__label" for="mobileGrowthRate-${ds}">Year-over-Year Growth Rate (%)</label>
+                            <input type="number" class="slds-input" id="mobileGrowthRate-${ds}" value="0" min="0" step="0.1" placeholder="0">
+                            <p class="slds-advanced-settings__hint">Default is 0% (flat). Applied to each app's Year 1 average to project subsequent years.</p>
+                        </div>
+                    </div>
+
+                    <div id="webMobileOverlapSection-${ds}" class="slds-volume-section slds-hidden">
+                        <h4 class="slds-volume-section__title">
+                            <span class="slds-icon-text">🔗</span> Web/Mobile Visitor Overlap
+                        </h4>
+                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">For implementations that leverage a single real-time data graph in a data space, we can account for overlap between web and mobile visitors to get a more accurate estimation of the number of MUVs required. Enter the percent overlap value below to factor it in to the sku calculation. Keep in mind, MUVs are not deduped across multiple real-time data graphs.</p>
+
+                        <div class="slds-form-element" style="margin-bottom: 0;">
+                            <label class="slds-form-element__label" for="mobileWebOverlap-${ds}">% Overlap of Mobile App and Web Visitors</label>
+                            <input type="number" class="slds-input" id="mobileWebOverlap-${ds}" value="0" min="0" max="100" step="1" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        // Rebuild data space cards, preserving existing input values across re-renders
+        function updateDataSpaces() {
+            const n = getNumDataSpaces();
+            const container = document.getElementById('dataSpacesContainer');
+            if (!container) return;
+
+            const snapshot = {};
+            container.querySelectorAll('input').forEach(el => { snapshot[el.id] = el.value; });
+
+            let html = '';
+            for (let i = 1; i <= n; i++) {
+                html += renderDataSpaceCard(i);
+            }
+            container.innerHTML = html;
+
+            // Restore top-level per-DS inputs (numDomains-N, numMobileApps-N, growth, overlap)
+            Object.entries(snapshot).forEach(([id, val]) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            });
+
+            updateVolumeFields();
+
+            // Domain/app rows are dynamic — updateVolumeFields calls updateDomainInputs/updateMobileAppInputs
+            // per DS. Restore their values now that those rows exist.
+            Object.entries(snapshot).forEach(([id, val]) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            });
+        }
+
+        function updateDomainInputs(ds) {
+            const numDomains = parseInt(document.getElementById(`numDomains-${ds}`)?.value) || 1;
+            const container = document.getElementById(`domainInputsContainer-${ds}`);
+            if (!container) return;
+
             const existing = {};
             container.querySelectorAll('input').forEach(el => { existing[el.id] = el.value; });
 
@@ -1196,14 +1238,14 @@
                         <div class="slds-grid slds-grid_pull-padded">
                             <div class="slds-col slds-size_1-of-2">
                                 <div class="slds-form-element">
-                                    <label class="slds-form-element__label" for="domainName${i}">Domain Name or URL</label>
-                                    <input type="text" class="slds-input domain-name" id="domainName${i}" placeholder="e.g., www.example.com">
+                                    <label class="slds-form-element__label" for="domainName-${ds}-${i}">Domain Name or URL</label>
+                                    <input type="text" class="slds-input domain-name" id="domainName-${ds}-${i}" placeholder="e.g., www.example.com">
                                 </div>
                             </div>
                             <div class="slds-col slds-size_1-of-2">
                                 <div class="slds-form-element">
-                                    <label class="slds-form-element__label" for="domainMUV${i}">Average Monthly Unique Visitors</label>
-                                    <input type="number" class="slds-input domain-muv" id="domainMUV${i}" placeholder="e.g., 4000000">
+                                    <label class="slds-form-element__label" for="domainMUV-${ds}-${i}">Average Monthly Unique Visitors</label>
+                                    <input type="number" class="slds-input domain-muv" id="domainMUV-${ds}-${i}" placeholder="e.g., 4000000">
                                 </div>
                             </div>
                         </div>
@@ -1212,19 +1254,17 @@
             }
             container.innerHTML = html;
 
-            // Restore snapshotted values
             Object.entries(existing).forEach(([id, val]) => {
                 const el = document.getElementById(id);
                 if (el) el.value = val;
             });
         }
 
-        // Dynamic mobile app inputs — preserves existing values when re-rendering
-        function updateMobileAppInputs() {
-            const numApps = parseInt(document.getElementById('numMobileApps').value) || 1;
-            const container = document.getElementById('mobileAppInputsContainer');
+        function updateMobileAppInputs(ds) {
+            const numApps = parseInt(document.getElementById(`numMobileApps-${ds}`)?.value) || 1;
+            const container = document.getElementById(`mobileAppInputsContainer-${ds}`);
+            if (!container) return;
 
-            // Snapshot existing values before wiping DOM
             const existing = {};
             container.querySelectorAll('input').forEach(el => { existing[el.id] = el.value; });
 
@@ -1236,14 +1276,14 @@
                         <div class="slds-grid slds-grid_pull-padded">
                             <div class="slds-col slds-size_1-of-2">
                                 <div class="slds-form-element">
-                                    <label class="slds-form-element__label" for="appName${i}">Mobile App Name</label>
-                                    <input type="text" class="slds-input app-name" id="appName${i}" placeholder="e.g., MyApp iOS">
+                                    <label class="slds-form-element__label" for="appName-${ds}-${i}">Mobile App Name</label>
+                                    <input type="text" class="slds-input app-name" id="appName-${ds}-${i}" placeholder="e.g., MyApp iOS">
                                 </div>
                             </div>
                             <div class="slds-col slds-size_1-of-2">
                                 <div class="slds-form-element">
-                                    <label class="slds-form-element__label" for="appMAU${i}">Average Monthly Active Users</label>
-                                    <input type="number" class="slds-input app-mau" id="appMAU${i}" placeholder="e.g., 4000000">
+                                    <label class="slds-form-element__label" for="appMAU-${ds}-${i}">Average Monthly Active Users</label>
+                                    <input type="number" class="slds-input app-mau" id="appMAU-${ds}-${i}" placeholder="e.g., 4000000">
                                 </div>
                             </div>
                         </div>
@@ -1252,26 +1292,27 @@
             }
             container.innerHTML = html;
 
-            // Restore snapshotted values
             Object.entries(existing).forEach(([id, val]) => {
                 const el = document.getElementById(id);
                 if (el) el.value = val;
             });
         }
 
-        // Get total web MUVs from all domains
-        function getTotalWebMUVs() {
+        function getTotalWebMUVs(ds) {
+            const container = document.getElementById(`domainInputsContainer-${ds}`);
+            if (!container) return 0;
             let total = 0;
-            document.querySelectorAll('.domain-muv').forEach(input => {
+            container.querySelectorAll('.domain-muv').forEach(input => {
                 total += parseInt(input.value) || 0;
             });
             return total;
         }
 
-        // Get total mobile MAUs from all apps
-        function getTotalMobileMAUs() {
+        function getTotalMobileMAUs(ds) {
+            const container = document.getElementById(`mobileAppInputsContainer-${ds}`);
+            if (!container) return 0;
             let total = 0;
-            document.querySelectorAll('.app-mau').forEach(input => {
+            container.querySelectorAll('.app-mau').forEach(input => {
                 total += parseInt(input.value) || 0;
             });
             return total;
@@ -1290,7 +1331,7 @@
             document.getElementById(`stepCircle${currentStep + 1}`).classList.add('slds-is-active');
 
             if (currentStep === 2) {
-                updateVolumeFields();
+                updateDataSpaces();
             }
         }
 
@@ -1336,54 +1377,55 @@
 
             const hasVolumeChannels = channels.includes('web') || channels.includes('mobile');
             document.getElementById('noChannelsMessage').classList.toggle('slds-hidden', hasVolumeChannels);
+            document.getElementById('dataSpacesContainer').classList.toggle('slds-hidden', !hasVolumeChannels);
 
-            // Web section
             const showWeb = channels.includes('web');
-            document.getElementById('webVolumeSection').classList.toggle('slds-hidden', !showWeb);
-            if (showWeb) {
-                updateDomainInputs();
-            }
-            document.getElementById('webGrowthContainer').classList.toggle('slds-hidden', !(showWeb && showGrowth));
-
-            // Mobile section
             const showMobile = channels.includes('mobile');
-            document.getElementById('mobileVolumeSection').classList.toggle('slds-hidden', !showMobile);
-            if (showMobile) {
-                updateMobileAppInputs();
-            }
-            document.getElementById('mobileGrowthContainer').classList.toggle('slds-hidden', !(showMobile && showGrowth));
+            const showOverlap = showWeb && showMobile;
+            const n = getNumDataSpaces();
 
-            // Advanced Options — only when BOTH web and mobile are selected
-            const showAdvanced = showWeb && showMobile;
-            const advanced = document.getElementById('mobileAdvancedOptions');
-            advanced.classList.toggle('slds-hidden', !showAdvanced);
-            if (!showAdvanced) {
-                // Collapse and reset shared-profile state when hidden
-                advanced.open = false;
-                const shared = document.getElementById('sharedProfileGraph');
-                shared.checked = false;
-                shared.closest('.slds-checkbox-tile').classList.remove('slds-is-selected');
-                document.getElementById('overlapContainer').classList.add('slds-hidden');
+            for (let ds = 1; ds <= n; ds++) {
+                const webSec = document.getElementById(`webVolumeSection-${ds}`);
+                if (webSec) webSec.classList.toggle('slds-hidden', !showWeb);
+                if (showWeb) updateDomainInputs(ds);
+                const webGrowth = document.getElementById(`webGrowthContainer-${ds}`);
+                if (webGrowth) webGrowth.classList.toggle('slds-hidden', !(showWeb && showGrowth));
+
+                const mobSec = document.getElementById(`mobileVolumeSection-${ds}`);
+                if (mobSec) mobSec.classList.toggle('slds-hidden', !showMobile);
+                if (showMobile) updateMobileAppInputs(ds);
+                const mobGrowth = document.getElementById(`mobileGrowthContainer-${ds}`);
+                if (mobGrowth) mobGrowth.classList.toggle('slds-hidden', !(showMobile && showGrowth));
+
+                const overlapSec = document.getElementById(`webMobileOverlapSection-${ds}`);
+                if (overlapSec) overlapSec.classList.toggle('slds-hidden', !showOverlap);
+                if (!showOverlap) {
+                    const overlapInp = document.getElementById(`mobileWebOverlap-${ds}`);
+                    if (overlapInp) overlapInp.value = '0';
+                }
             }
         }
 
         function validateVolumes() {
             const channels = getSelectedChannels();
+            const n = getNumDataSpaces();
             const missing = [];
 
-            if (channels.includes('web')) {
-                const numDomains = parseInt(document.getElementById('numDomains').value) || 1;
-                for (let i = 1; i <= numDomains; i++) {
-                    const muv = document.getElementById(`domainMUV${i}`)?.value.trim();
-                    if (!muv) { missing.push(`Monthly Unique Visitors for Website ${i}`); }
+            for (let ds = 1; ds <= n; ds++) {
+                const prefix = n > 1 ? `[Data Space ${ds}] ` : '';
+                if (channels.includes('web')) {
+                    const numDomains = parseInt(document.getElementById(`numDomains-${ds}`)?.value) || 1;
+                    for (let i = 1; i <= numDomains; i++) {
+                        const muv = document.getElementById(`domainMUV-${ds}-${i}`)?.value.trim();
+                        if (!muv) { missing.push(`${prefix}Monthly Unique Visitors for Website ${i}`); }
+                    }
                 }
-            }
-
-            if (channels.includes('mobile')) {
-                const numApps = parseInt(document.getElementById('numMobileApps').value) || 1;
-                for (let i = 1; i <= numApps; i++) {
-                    const mau = document.getElementById(`appMAU${i}`)?.value.trim();
-                    if (!mau) { missing.push(`Monthly Active Users for Mobile App ${i}`); }
+                if (channels.includes('mobile')) {
+                    const numApps = parseInt(document.getElementById(`numMobileApps-${ds}`)?.value) || 1;
+                    for (let i = 1; i <= numApps; i++) {
+                        const mau = document.getElementById(`appMAU-${ds}-${i}`)?.value.trim();
+                        if (!mau) { missing.push(`${prefix}Monthly Active Users for Mobile App ${i}`); }
+                    }
                 }
             }
 
@@ -1433,6 +1475,8 @@
 
             const contractLength = parseInt(document.getElementById('contractLength').value) || 1;
             const showGrowth = contractLength > 1;
+            const n = getNumDataSpaces();
+            const bothChannels = channels.includes('web') && channels.includes('mobile');
 
             const contractTotal = (baseMonthly, growthPct) => {
                 const g = growthPct / 100;
@@ -1443,65 +1487,74 @@
                 return Math.round(total);
             };
 
-            if (channels.includes('web')) {
-                const domains = document.getElementById('numDomains').value || 1;
-                const totalWebMUVs = getTotalWebMUVs();
-                const webGrowth = showGrowth ? (parseFloat(document.getElementById('webGrowthRate')?.value) || 0) : 0;
-                const webContractTotal = contractTotal(totalWebMUVs, webGrowth);
-                summaryHTML += `
-                    <div class="slds-summary-tile">
-                        <div class="slds-summary-tile__label">Web Domains</div>
-                        <div class="slds-summary-tile__value">${domains}</div>
-                    </div>
-                    <div class="slds-summary-tile">
-                        <div class="slds-summary-tile__label">Total Web Visitors (Contract)</div>
-                        <div class="slds-summary-tile__value">${webContractTotal.toLocaleString()}</div>
-                    </div>
-                `;
-                if (showGrowth) {
+            summaryHTML += `
+                <div class="slds-summary-tile">
+                    <div class="slds-summary-tile__label">Data Spaces</div>
+                    <div class="slds-summary-tile__value">${n}</div>
+                </div>
+            `;
+
+            for (let ds = 1; ds <= n; ds++) {
+                const dsLabel = n > 1 ? ` (Data Space ${ds})` : '';
+                if (channels.includes('web')) {
+                    const domains = document.getElementById(`numDomains-${ds}`)?.value || 1;
+                    const totalWebMUVs = getTotalWebMUVs(ds);
+                    const webGrowth = showGrowth ? (parseFloat(document.getElementById(`webGrowthRate-${ds}`)?.value) || 0) : 0;
+                    const webContractTotal = contractTotal(totalWebMUVs, webGrowth);
                     summaryHTML += `
                         <div class="slds-summary-tile">
-                            <div class="slds-summary-tile__label">Web YoY Growth</div>
-                            <div class="slds-summary-tile__value">${webGrowth}%</div>
+                            <div class="slds-summary-tile__label">Web Domains${dsLabel}</div>
+                            <div class="slds-summary-tile__value">${domains}</div>
+                        </div>
+                        <div class="slds-summary-tile">
+                            <div class="slds-summary-tile__label">Total Web Visitors${dsLabel}</div>
+                            <div class="slds-summary-tile__value">${webContractTotal.toLocaleString()}</div>
+                        </div>
+                    `;
+                    if (showGrowth) {
+                        summaryHTML += `
+                            <div class="slds-summary-tile">
+                                <div class="slds-summary-tile__label">Web YoY Growth${dsLabel}</div>
+                                <div class="slds-summary-tile__value">${webGrowth}%</div>
+                            </div>
+                        `;
+                    }
+                }
+
+                if (channels.includes('mobile')) {
+                    const numApps = document.getElementById(`numMobileApps-${ds}`)?.value || 1;
+                    const totalMAU = getTotalMobileMAUs(ds);
+                    const mobileGrowth = showGrowth ? (parseFloat(document.getElementById(`mobileGrowthRate-${ds}`)?.value) || 0) : 0;
+                    const mobileContractTotal = contractTotal(totalMAU, mobileGrowth);
+                    summaryHTML += `
+                        <div class="slds-summary-tile">
+                            <div class="slds-summary-tile__label">Mobile Apps${dsLabel}</div>
+                            <div class="slds-summary-tile__value">${numApps}</div>
+                        </div>
+                        <div class="slds-summary-tile">
+                            <div class="slds-summary-tile__label">Total Mobile Active Users${dsLabel}</div>
+                            <div class="slds-summary-tile__value">${mobileContractTotal.toLocaleString()}</div>
+                        </div>
+                    `;
+                    if (showGrowth) {
+                        summaryHTML += `
+                            <div class="slds-summary-tile">
+                                <div class="slds-summary-tile__label">Mobile YoY Growth${dsLabel}</div>
+                                <div class="slds-summary-tile__value">${mobileGrowth}%</div>
+                            </div>
+                        `;
+                    }
+                }
+
+                if (bothChannels) {
+                    const overlap = parseFloat(document.getElementById(`mobileWebOverlap-${ds}`)?.value) || 0;
+                    summaryHTML += `
+                        <div class="slds-summary-tile">
+                            <div class="slds-summary-tile__label">Mobile / Web Visitor Overlap${dsLabel}</div>
+                            <div class="slds-summary-tile__value">${overlap}%</div>
                         </div>
                     `;
                 }
-            }
-
-            if (channels.includes('mobile')) {
-                const numApps = document.getElementById('numMobileApps').value || 1;
-                const totalMAU = getTotalMobileMAUs();
-                const mobileGrowth = showGrowth ? (parseFloat(document.getElementById('mobileGrowthRate')?.value) || 0) : 0;
-                const mobileContractTotal = contractTotal(totalMAU, mobileGrowth);
-                summaryHTML += `
-                    <div class="slds-summary-tile">
-                        <div class="slds-summary-tile__label">Mobile Apps</div>
-                        <div class="slds-summary-tile__value">${numApps}</div>
-                    </div>
-                    <div class="slds-summary-tile">
-                        <div class="slds-summary-tile__label">Total Mobile Active Users (Contract)</div>
-                        <div class="slds-summary-tile__value">${mobileContractTotal.toLocaleString()}</div>
-                    </div>
-                `;
-                if (showGrowth) {
-                    summaryHTML += `
-                        <div class="slds-summary-tile">
-                            <div class="slds-summary-tile__label">Mobile YoY Growth</div>
-                            <div class="slds-summary-tile__value">${mobileGrowth}%</div>
-                        </div>
-                    `;
-                }
-            }
-
-            const bothChannels = channels.includes('web') && channels.includes('mobile');
-            if (bothChannels && document.getElementById('sharedProfileGraph')?.checked) {
-                const overlap = parseFloat(document.getElementById('mobileWebOverlap')?.value) || 0;
-                summaryHTML += `
-                    <div class="slds-summary-tile">
-                        <div class="slds-summary-tile__label">Mobile / Web Visitor Overlap</div>
-                        <div class="slds-summary-tile__value">${overlap}%</div>
-                    </div>
-                `;
             }
 
             document.getElementById('summaryGrid').innerHTML = summaryHTML;
@@ -1510,17 +1563,11 @@
         function calculateSKUs() {
             const channels = getSelectedChannels();
             const contractLength = parseInt(document.getElementById('contractLength').value);
-
-            const totalWebMUVs = getTotalWebMUVs();
-            const totalMobileMAUs = getTotalMobileMAUs();
-
-            // Growth rates default to 0% (flat). Only applied when contract > 1.
-            const webGrowthPct = parseFloat(document.getElementById('webGrowthRate')?.value) || 0;
-            const mobileGrowthPct = parseFloat(document.getElementById('mobileGrowthRate')?.value) || 0;
             const useGrowth = contractLength > 1;
+            const bothChannels = channels.includes('web') && channels.includes('mobile');
+            const n = getNumDataSpaces();
 
-            // Sum over N years of (Y1 monthly * 12 * (1+g)^k), k = 0..N-1
-            // Reduces to Y1 * 12 * N when g = 0.
+            // Sum over N years of (Y1 monthly * 12 * (1+g)^k). Reduces to Y1 * 12 * N when g = 0.
             const yearlySum = (baseMonthly, growthPct) => {
                 const g = growthPct / 100;
                 let total = 0;
@@ -1530,27 +1577,26 @@
                 return total;
             };
 
-            const webRawMUVs = (channels.includes('web') && totalWebMUVs > 0)
-                ? yearlySum(totalWebMUVs, useGrowth ? webGrowthPct : 0) : 0;
-            const mobileRawMUVs = (channels.includes('mobile') && totalMobileMAUs > 0)
-                ? yearlySum(totalMobileMAUs, useGrowth ? mobileGrowthPct : 0) : 0;
+            // Aggregate raw MUVs across every data space (MUVs are not deduped across spaces)
+            let grandTotalRaw = 0;
+            for (let ds = 1; ds <= n; ds++) {
+                const totalWebMUVs = channels.includes('web') ? getTotalWebMUVs(ds) : 0;
+                const totalMobileMAUs = channels.includes('mobile') ? getTotalMobileMAUs(ds) : 0;
+                const webGrowthPct = useGrowth ? (parseFloat(document.getElementById(`webGrowthRate-${ds}`)?.value) || 0) : 0;
+                const mobileGrowthPct = useGrowth ? (parseFloat(document.getElementById(`mobileGrowthRate-${ds}`)?.value) || 0) : 0;
 
-            // Shared data space / RT profile graph — dedupe mobile against web by overlap %
-            const bothChannels = channels.includes('web') && channels.includes('mobile');
-            const sharedProfile = bothChannels && document.getElementById('sharedProfileGraph')?.checked;
-            const overlapPct = sharedProfile
-                ? Math.min(100, Math.max(0, parseFloat(document.getElementById('mobileWebOverlap')?.value) || 0))
-                : 0;
+                const webRawMUVs = totalWebMUVs > 0 ? yearlySum(totalWebMUVs, webGrowthPct) : 0;
+                const mobileRawMUVs = totalMobileMAUs > 0 ? yearlySum(totalMobileMAUs, mobileGrowthPct) : 0;
 
-            let totalUnits;
-            if (sharedProfile) {
-                const combined = webRawMUVs + (1 - overlapPct / 100) * mobileRawMUVs;
-                totalUnits = combined > 0 ? Math.ceil(combined / 100000) : 0;
-            } else {
-                const webUnits = webRawMUVs > 0 ? Math.ceil(webRawMUVs / 100000) : 0;
-                const mobileUnits = mobileRawMUVs > 0 ? Math.ceil(mobileRawMUVs / 100000) : 0;
-                totalUnits = webUnits + mobileUnits;
+                if (bothChannels) {
+                    const overlapPct = Math.min(100, Math.max(0, parseFloat(document.getElementById(`mobileWebOverlap-${ds}`)?.value) || 0));
+                    grandTotalRaw += webRawMUVs + (1 - overlapPct / 100) * mobileRawMUVs;
+                } else {
+                    grandTotalRaw += webRawMUVs + mobileRawMUVs;
+                }
             }
+
+            const totalUnits = grandTotalRaw > 0 ? Math.ceil(grandTotalRaw / 100000) : 0;
 
             const skus = [{
                 name: 'Real-Time Personalization - MUVs (100K)',
@@ -1723,26 +1769,38 @@
         // ── Export config file ───────────────────────────────────────────────
 
         function exportConfig() {
-            const numDomains = parseInt(document.getElementById('numDomains').value) || 1;
-            const domains = [];
-            for (let i = 1; i <= numDomains; i++) {
-                domains.push({
-                    name: document.getElementById(`domainName${i}`)?.value || '',
-                    muv:  document.getElementById(`domainMUV${i}`)?.value  || ''
-                });
-            }
-
-            const numApps = parseInt(document.getElementById('numMobileApps').value) || 1;
-            const mobileApps = [];
-            for (let i = 1; i <= numApps; i++) {
-                mobileApps.push({
-                    name: document.getElementById(`appName${i}`)?.value || '',
-                    mau:  document.getElementById(`appMAU${i}`)?.value  || ''
+            const n = getNumDataSpaces();
+            const dataSpaces = [];
+            for (let ds = 1; ds <= n; ds++) {
+                const numDomains = parseInt(document.getElementById(`numDomains-${ds}`)?.value) || 1;
+                const domains = [];
+                for (let i = 1; i <= numDomains; i++) {
+                    domains.push({
+                        name: document.getElementById(`domainName-${ds}-${i}`)?.value || '',
+                        muv:  document.getElementById(`domainMUV-${ds}-${i}`)?.value  || ''
+                    });
+                }
+                const numApps = parseInt(document.getElementById(`numMobileApps-${ds}`)?.value) || 1;
+                const mobileApps = [];
+                for (let i = 1; i <= numApps; i++) {
+                    mobileApps.push({
+                        name: document.getElementById(`appName-${ds}-${i}`)?.value || '',
+                        mau:  document.getElementById(`appMAU-${ds}-${i}`)?.value  || ''
+                    });
+                }
+                dataSpaces.push({
+                    numDomains,
+                    domains,
+                    numMobileApps:    numApps,
+                    mobileApps,
+                    webGrowthRate:    document.getElementById(`webGrowthRate-${ds}`)?.value || '0',
+                    mobileGrowthRate: document.getElementById(`mobileGrowthRate-${ds}`)?.value || '0',
+                    mobileWebOverlap: document.getElementById(`mobileWebOverlap-${ds}`)?.value || '0'
                 });
             }
 
             const config = {
-                _version:    3,
+                _version:    4,
                 _savedAt:    new Date().toISOString(),
                 calculatorTitle:            document.getElementById('calculatorTitle').value,
                 customerName:               document.getElementById('customerName').value,
@@ -1751,14 +1809,8 @@
                     web:    document.getElementById('channelWeb').checked,
                     mobile: document.getElementById('channelMobile').checked
                 },
-                numDomains,
-                domains,
-                numMobileApps: numApps,
-                mobileApps,
-                webGrowthRate:      document.getElementById('webGrowthRate')?.value || '0',
-                mobileGrowthRate:   document.getElementById('mobileGrowthRate')?.value || '0',
-                sharedProfileGraph: !!document.getElementById('sharedProfileGraph')?.checked,
-                mobileWebOverlap:   document.getElementById('mobileWebOverlap')?.value || '0'
+                numDataSpaces: n,
+                dataSpaces
             };
 
             const json     = JSON.stringify(config, null, 2);
@@ -1829,36 +1881,47 @@
             });
 
             // ── Step 3: volumes ──────────────────────────────────────────────
-            document.getElementById('numDomains').value    = c.numDomains    || 1;
-            document.getElementById('numMobileApps').value = c.numMobileApps || 1;
+            // Back-compat: older configs (_version 3) stored a single flat data space
+            const legacyDS = !c.dataSpaces && (c.domains || c.mobileApps);
+            const dataSpaces = c.dataSpaces || (legacyDS ? [{
+                numDomains: c.numDomains,
+                domains: c.domains,
+                numMobileApps: c.numMobileApps,
+                mobileApps: c.mobileApps,
+                webGrowthRate: c.webGrowthRate,
+                mobileGrowthRate: c.mobileGrowthRate,
+                mobileWebOverlap: c.mobileWebOverlap
+            }] : []);
+            const n = c.numDataSpaces || dataSpaces.length || 1;
 
-            updateVolumeFields();
+            document.getElementById('numDataSpaces').value = n;
+            updateDataSpaces();
 
-            (c.domains || []).forEach((d, i) => {
-                const n = document.getElementById(`domainName${i + 1}`);
-                const m = document.getElementById(`domainMUV${i + 1}`);
-                if (n) n.value = d.name || '';
-                if (m) m.value = d.muv  || '';
+            dataSpaces.forEach((dsCfg, idx) => {
+                const ds = idx + 1;
+                document.getElementById(`numDomains-${ds}`).value    = dsCfg.numDomains    || 1;
+                document.getElementById(`numMobileApps-${ds}`).value = dsCfg.numMobileApps || 1;
+                updateDomainInputs(ds);
+                updateMobileAppInputs(ds);
+                (dsCfg.domains || []).forEach((d, i) => {
+                    const nEl = document.getElementById(`domainName-${ds}-${i + 1}`);
+                    const mEl = document.getElementById(`domainMUV-${ds}-${i + 1}`);
+                    if (nEl) nEl.value = d.name || '';
+                    if (mEl) mEl.value = d.muv  || '';
+                });
+                (dsCfg.mobileApps || []).forEach((a, i) => {
+                    const nEl = document.getElementById(`appName-${ds}-${i + 1}`);
+                    const mEl = document.getElementById(`appMAU-${ds}-${i + 1}`);
+                    if (nEl) nEl.value = a.name || '';
+                    if (mEl) mEl.value = a.mau  || '';
+                });
+                const wg = document.getElementById(`webGrowthRate-${ds}`);
+                const mg = document.getElementById(`mobileGrowthRate-${ds}`);
+                const ov = document.getElementById(`mobileWebOverlap-${ds}`);
+                if (wg) wg.value = dsCfg.webGrowthRate    ?? '0';
+                if (mg) mg.value = dsCfg.mobileGrowthRate ?? '0';
+                if (ov) ov.value = dsCfg.mobileWebOverlap ?? '0';
             });
-
-            (c.mobileApps || []).forEach((a, i) => {
-                const n = document.getElementById(`appName${i + 1}`);
-                const m = document.getElementById(`appMAU${i + 1}`);
-                if (n) n.value = a.name || '';
-                if (m) m.value = a.mau  || '';
-            });
-
-            document.getElementById('webGrowthRate').value    = c.webGrowthRate    ?? '0';
-            document.getElementById('mobileGrowthRate').value = c.mobileGrowthRate ?? '0';
-
-            const sharedEl = document.getElementById('sharedProfileGraph');
-            sharedEl.checked = !!c.sharedProfileGraph;
-            sharedEl.closest('.slds-checkbox-tile').classList.toggle('slds-is-selected', sharedEl.checked);
-            document.getElementById('overlapContainer').classList.toggle('slds-hidden', !sharedEl.checked);
-            document.getElementById('mobileWebOverlap').value = c.mobileWebOverlap ?? '0';
-            if (sharedEl.checked) {
-                document.getElementById('mobileAdvancedOptions').open = true;
-            }
 
             window._loadedConfig = null;
         }
@@ -1876,18 +1939,8 @@
             });
 
             // Reset Step 3 inputs
-            document.getElementById('numDomains').value = '1';
-            document.getElementById('domainInputsContainer').innerHTML = '';
-            document.getElementById('numMobileApps').value = '1';
-            document.getElementById('mobileAppInputsContainer').innerHTML = '';
-            document.getElementById('webGrowthRate').value = '0';
-            document.getElementById('mobileGrowthRate').value = '0';
-            const sharedReset = document.getElementById('sharedProfileGraph');
-            sharedReset.checked = false;
-            sharedReset.closest('.slds-checkbox-tile').classList.remove('slds-is-selected');
-            document.getElementById('overlapContainer').classList.add('slds-hidden');
-            document.getElementById('mobileWebOverlap').value = '0';
-            document.getElementById('mobileAdvancedOptions').open = false;
+            document.getElementById('numDataSpaces').value = '1';
+            document.getElementById('dataSpacesContainer').innerHTML = '';
 
             for (let i = 1; i <= 4; i++) {
                 document.getElementById(`stepCircle${i}`).classList.remove('slds-is-active', 'slds-is-completed');
