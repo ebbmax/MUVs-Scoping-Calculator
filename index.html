@@ -994,21 +994,6 @@
 
         <!-- Step 3: Channel Volumes -->
         <div class="slds-step-content" id="step3">
-            <!-- Data Spaces Config Card -->
-            <div class="slds-card">
-                <div class="slds-card__header">
-                    <h2 class="slds-card__header-title">Data Spaces</h2>
-                </div>
-                <div class="slds-card__body">
-                    <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">The number of data spaces configured can impact a customer's MUV consumption, as MUVs are not deduped across data spaces. In order to get the most accurate estimate, enter the number of intended data spaces below. If you are unsure how many data spaces are required, just use the default value of 1.</p>
-
-                    <div class="slds-form-element" style="margin-bottom: 0;">
-                        <label class="slds-form-element__label" for="numDataSpaces">Number of Data Spaces</label>
-                        <input type="number" class="slds-input" id="numDataSpaces" value="1" min="1" onchange="updateDataSpaces()">
-                    </div>
-                </div>
-            </div>
-
             <!-- Empty state (shown when no channels selected) -->
             <div id="noChannelsMessage" class="slds-card slds-hidden">
                 <div class="slds-card__body">
@@ -1180,7 +1165,7 @@
                         <h4 class="slds-volume-section__title">
                             <span class="slds-icon-text">🔗</span> Web/Mobile Visitor Overlap
                         </h4>
-                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">For implementations that leverage a single real-time data graph in a data space, we can account for overlap between web and mobile visitors to get a more accurate estimation of the number of MUVs required. Enter the percent overlap value below to factor it in to the sku calculation. Keep in mind, MUVs are not deduped across multiple real-time data graphs.</p>
+                        <p class="slds-text-color_weak" style="margin-bottom: 1rem; font-size: 0.8125rem;">For cross-channel implementations that leverage a real-time data graph rooted on unified individual, we can account for overlap between web and mobile visitors to get a more accurate estimation of the number of MUVs required. Enter the percent overlap value below to factor it into the sku calculation. Keep in mind, MUVs are not deduped across either multiple real-time data graphs or data spaces.</p>
 
                         <div class="slds-form-element" style="margin-bottom: 0;">
                             <label class="slds-form-element__label" for="mobileWebOverlap-${ds}">% Overlap of Mobile App and Web Visitors</label>
@@ -1894,7 +1879,8 @@
             }] : []);
             const n = c.numDataSpaces || dataSpaces.length || 1;
 
-            document.getElementById('numDataSpaces').value = n;
+            const dsInput = document.getElementById('numDataSpaces');
+            if (dsInput) dsInput.value = n;
             updateDataSpaces();
 
             dataSpaces.forEach((dsCfg, idx) => {
@@ -1939,7 +1925,8 @@
             });
 
             // Reset Step 3 inputs
-            document.getElementById('numDataSpaces').value = '1';
+            const dsResetInput = document.getElementById('numDataSpaces');
+            if (dsResetInput) dsResetInput.value = '1';
             document.getElementById('dataSpacesContainer').innerHTML = '';
 
             for (let i = 1; i <= 4; i++) {
