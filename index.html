@@ -1472,13 +1472,6 @@
                 return Math.round(total);
             };
 
-            summaryHTML += `
-                <div class="slds-summary-tile">
-                    <div class="slds-summary-tile__label">Data Spaces</div>
-                    <div class="slds-summary-tile__value">${n}</div>
-                </div>
-            `;
-
             for (let ds = 1; ds <= n; ds++) {
                 const dsLabel = n > 1 ? ` (Data Space ${ds})` : '';
                 if (channels.includes('web')) {
